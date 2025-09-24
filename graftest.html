@@ -1,13 +1,14 @@
 <!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Graffiti Page</title>
+    <title>No Context Graffiti</title>
     <style>
       body {
         margin: 0;
-        font-family: 'Arial Black', sans-serif;
+        font-family: sans-serif;
         color: white;
         text-align: center;
         min-height: 100vh;
@@ -36,35 +37,61 @@
         100% { background-position: 0% 50%; }
       }
 
-      h1 {
-        font-size: 4rem;
-        text-shadow: 2px 2px 8px black, 0 0 20px #fff, 0 0 40px #ff00de;
-        margin: 0;
-      }
-
-      p {
-        font-size: 1.5rem;
-        text-shadow: 1px 1px 4px black;
-      }
-
-      a {
-        margin-top: 2rem;
-        padding: 0.8rem 1.5rem;
-        background: black;
-        color: #fff;
+      /* Ransom note style */
+      .ransom {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
         text-decoration: none;
-        border-radius: 6px;
-        font-weight: bold;
-        transition: background 0.3s;
       }
 
-      a:hover {
-        background: #333;
+      .ransom span {
+        display: inline-block;
+        font-size: 3rem;
+        font-weight: bold;
+        padding: 10px;
+        color: #fff;
+        background: black;
+        transform: rotate(calc(-10deg + 20deg * var(--r)));
+        font-family: monospace, 'Courier New', sans-serif;
+      }
+
+      .ransom span:nth-child(odd) {
+        background: #ff0080;
+        font-family: Arial Black, sans-serif;
+      }
+
+      .ransom span:nth-child(even) {
+        background: #00c2ff;
+        font-family: Georgia, serif;
+      }
+
+      .ransom span:nth-child(3n) {
+        background: #ffe600;
+        color: black;
+        font-family: Impact, sans-serif;
+      }
+
+      .ransom:hover span {
+        filter: brightness(1.3);
       }
     </style>
   </head>
   <body>
-    <h1>Graffiti Vibes 🎨</h1>
+    <a href="index.html" class="ransom">
+      <span style="--r:0">N</span>
+      <span style="--r:1">O</span>
+      <span style="--r:2"> </span>
+      <span style="--r:3">C</span>
+      <span style="--r:0">O</span>
+      <span style="--r:1">N</span>
+      <span style="--r:2">T</span>
+      <span style="--r:3">E</span>
+      <span style="--r:0">X</span>
+      <span style="--r:1">T</span>
+    </a>
+  </body>
+</html>
     <p>Welcome to my graffiti-style page!</p>
     <a href="index.html">⬅ Back to Home</a>
   </body>
