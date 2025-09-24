@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>My Graffiti Site</title>
+    <style>
+      /* Graffiti-inspired background */
+      body {
+        margin: 0;
+        font-family: 'Arial Black', sans-serif;
+        color: white;
+        text-align: center;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        /* Vibrant, graffiti-like gradient */
+        background: linear-gradient(
+          -45deg,
+          #ff4b1f,
+          #1fddff,
+          #1f4037,
+          #99f2c8,
+          #fc466b,
+          #3f5efb
+        );
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      h1 {
+        font-size: 4rem;
+        text-shadow: 2px 2px 8px black, 0 0 20px #fff, 0 0 40px #ff00de;
+        margin: 0;
+      }
+
+      p {
+        font-size: 1.5rem;
+        text-shadow: 1px 1px 4px black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to My Site</h1>
+    <p>Graffiti vibes ✨</p>
+  </body>
+</html>
