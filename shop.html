@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shop</title>
+  <style>
+    :root { --gap: 16px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f0f12;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header, footer {
+      padding: 16px;
+      background: #111218;
+      border-bottom: 1px solid #222;
+    }
+    header a { color: #9ad; text-decoration: none; }
+    main { width: min(1100px, 92vw); margin: 24px auto; }
+    h1 { margin: 0 0 16px; font-size: 1.8rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--gap);
+    }
+    .card {
+      background: #151723;
+      border: 1px solid #22263a;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .thumb {
+      aspect-ratio: 4 / 3;
+      width: 100%;
+      object-fit: cover;
+      display: block;
+      background: #0e0f14;
+    }
+    .content { padding: 12px 14px 16px; display: grid; gap: 8px; }
+    .title { font-weight: 700; line-height: 1.2; }
+    .price { font-weight: 700; color: #b3f36b; }
+    .desc { color: #c9c9d4; font-size: 0.95rem; }
+    .empty {
+      border: 1px dashed #3a3f66;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+      color: #aab;
+      background: #121422;
+    }
+    .toolbar {
+      display: flex; gap: 12px; align-items: center; margin-bottom: 16px;
+    }
+    .toolbar input {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid #2a2e4a;
+      background: #121422; color: #e6e6f0; flex: 1;
+    }
+    .toolbar select {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid #2a2e4a;
+      background: #121422; color: #e6e6f0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html">⬅ Back to Home</a>
+  </header>
+
+  <main>
+    <h1>Shop</h1>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search listings…" />
+      <select id="sort">
+        <option value="new">Newest</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+      </select>
+    </div>
+
+    <div id="list" class="grid" aria-live="polite"></div>
+    <div id="empty" class="empty" style="display:none">Nothing here right now — check back soon!</div>
+  </main>
+
+  <footer></footer>
+
+  <script>
+    const listEl = document.getElementById('list');
+    const emptyEl = document.getElementById('empty');
+    const searchEl = document.getElementById('search');
+    const sortEl = document.getElementById('sort');
+
+    let items = [];
+    let filtered = [];
+
+    async function load() {
+      try {
+        // Cache-bust so your browser grabs the latest file after edits
+        const res = await fetch('shop.json?v=' + Date.now());
+        if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+        const data = await res.json();
+        // Only keep items that are NOT sold
+        items = (data.items || []).filter(i => !i.sold);
+        filtered = [...items];
+        render();
+      } catch (err) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        emptyEl.textContent = 'Could not load shop.json. Make sure it exists in the same folder.';
+        console.error(err);
+      }
+    }
+
+    function render() {
+      // search filter
+      const q = searchEl.value.trim().toLowerCase();
+      filtered = items.filter(i => {
+        const hay = (i.title + ' ' + (i.description || '')).toLowerCase();
+        return hay.includes(q);
+      });
+
+      // sort
+      const mode = sortEl.value;
+      filtered.sort((a, b) => {
+        if (mode === 'price-asc') return (a.price ?? 0) - (b.price ?? 0);
+        if (mode === 'price-desc') return (b.price ?? 0) - (a.price ?? 0);
+        // newest: compare created_at ISO strings if present, else keep order
+        if (a.created_at && b.created_at) return new Date(b.created_at) - new Date(a.created_at);
+        return 0;
+      });
+
+      listEl.innerHTML = '';
+      if (!filtered.length) {
+        emptyEl.style.display = 'block';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      for (const item of filtered) {
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.className = 'thumb';
+        img.loading = 'lazy';
+        img.alt = item.title || 'Listing image';
+        img.src = item.image || 'https://via.placeholder.com/800x600?text=No+Image';
+        card.appendChild(img);
+
+        const c = document.createElement('div');
+        c.className = 'content';
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = item.title || 'Untitled';
+        c.appendChild(title);
+
+        if (typeof item.price !== 'undefined') {
+          const price = document.createElement('div');
+          price.className = 'price';
+          price.textContent = formatPrice(item.price, item.currency || 'USD');
+          c.appendChild(price);
+        }
+
+        if (item.description) {
+          const desc = document.createElement('div');
+          desc.className = 'desc';
+          desc.textContent = item.description;
+          c.appendChild(desc);
+        }
+
+        // Optional: link to details or purchase page (could be a PayPal/Stripe link you paste in the JSON later)
+        if (item.link) {
+          const a = document.createElement('a');
+          a.href = item.link;
+          a.textContent = 'View / Buy';
+          a.style = 'color:#9ad;text-decoration:underline;margin-top:6px;';
+          c.appendChild(a);
+        }
+
+        card.appendChild(c);
+        listEl.appendChild(card);
+      }
+    }
+
+    function formatPrice(n, currency='USD') {
+      try {
+        return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(n);
+      } catch {
+        return `$${n}`;
+      }
+    }
+
+    searchEl.addEventListener('input', render);
+    sortEl.addEventListener('change', render);
+
+    load();
+  </script>
+</body>
+</html>
